@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
+            // CORS middleware for API routes
+            \App\Http\Middleware\CorsMiddleware::class,
             // Remove EnsureFrontendRequestsAreStateful for API routes
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
