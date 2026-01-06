@@ -19,7 +19,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://coffee-system-front-deploy.vercel.app', 'http://localhost:3000', 'http://localhost:3001'],
+    'allowed_origins' => [
+        'https://coffee-system-front-deploy.vercel.app',
+        'https://coffee-system-front-deploy-two.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:3001',
+    ],
 
     'allowed_origins_patterns' => [],
 
