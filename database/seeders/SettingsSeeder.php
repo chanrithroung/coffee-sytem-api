@@ -36,6 +36,13 @@ class SettingsSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+                'key' => 'exchangeRate',
+                'value' => json_encode(1),
+                'type' => 'number',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'key' => 'timezone',
                 'value' => json_encode('America/New_York'),
                 'type' => 'string',

@@ -188,9 +188,9 @@ class OrderController extends Controller
                 ];
             }
 
-            // Calculate tax and service charge (configurable)
-            $taxRate = config('app.tax_rate', 0.10); // 10% default
-            $serviceChargeRate = config('app.service_charge_rate', 0.05); // 5% default
+            // Calculate tax and service charge from saved business settings.
+            $taxRate = $this->getPercentageSetting('taxRate', 10);
+            $serviceChargeRate = $this->getPercentageSetting('serviceChargeRate', 5);
 
             $data['subtotal'] = $subtotal;
             $data['tax_amount'] = $subtotal * $taxRate;
@@ -293,6 +293,19 @@ class OrderController extends Controller
             'message' => 'Order updated successfully',
             'data' => new OrderResource($order->fresh(['user', 'table', 'items.product']))
         ]);
+    }
+
+    private function getPercentageSetting(string $key, float $defaultPercent): float
+    {
+        try {
+            $storedValue = DB::table('settings')->where('key', $key)->value('value');
+            $decodedValue = $storedValue !== null ? json_decode($storedValue, true) : null;
+            $percent = is_numeric($decodedValue) ? (float) $decodedValue : $defaultPercent;
+
+            return max(0, $percent) / 100;
+        } catch (\Throwable $e) {
+            return $defaultPercent / 100;
+        }
     }
 
     /**

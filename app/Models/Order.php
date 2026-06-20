@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -249,8 +250,8 @@ class Order extends Model
     public function calculateTotals()
     {
         $subtotal = $this->items()->sum('line_total');
-        $taxRate = 0.10; // 10% tax
-        $serviceChargeRate = 0.05; // 5% service charge for dine-in
+        $taxRate = $this->getPercentageSetting('taxRate', 10);
+        $serviceChargeRate = $this->getPercentageSetting('serviceChargeRate', 5);
 
         $taxAmount = $subtotal * $taxRate;
         $serviceCharge = ($this->order_type === 'dine_in') ? $subtotal * $serviceChargeRate : 0;
@@ -264,6 +265,19 @@ class Order extends Model
         ]);
 
         return $this;
+    }
+
+    private function getPercentageSetting(string $key, float $defaultPercent): float
+    {
+        try {
+            $storedValue = DB::table('settings')->where('key', $key)->value('value');
+            $decodedValue = $storedValue !== null ? json_decode($storedValue, true) : null;
+            $percent = is_numeric($decodedValue) ? (float) $decodedValue : $defaultPercent;
+
+            return max(0, $percent) / 100;
+        } catch (\Throwable $e) {
+            return $defaultPercent / 100;
+        }
     }
 
     public function calculateEstimatedTime()
